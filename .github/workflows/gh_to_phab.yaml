@@ -7,7 +7,6 @@ on:
 jobs:
   phabricator_comment:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Post to Phabricator when pull request is opened or closed
@@ -21,3 +20,4 @@ jobs:
             -d transactions[0][type]=comment \
             -d transactions[0][value]="${message}" \
             -d objectIdentifier=${task}
+        fi
