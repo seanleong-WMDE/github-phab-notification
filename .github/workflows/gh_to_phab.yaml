@@ -12,12 +12,12 @@ jobs:
     - name: Post to Phabricator when pull request is opened or closed
       run: |
         message="${{ github.actor }} ${{ github.event.action }} ${{ github.event.pull_request._links.html.href }}"
-        task=$(curl ${{ github.event.pull_request._links.commits.href }} | jq .[0].commit.message -r | grep "^Bug: T[0-9]*$" | head -1 | awk '{print $2}')
+        tasks=$(curl ${{ github.event.pull_request._links.commits.href }} | jq .[].commit.message -r | grep -oEi "^Bug:\s*T[0-9]*$" | awk '{print $2}')
 
-        if [ -n "${task}" ]; then
+        for task in ${tasks}; do
           curl https://phabricator.wikimedia.org/api/maniphest.edit \
             -d api.token=${{ secrets.PHAB_BOT_API_KEY }} \
             -d transactions[0][type]=comment \
             -d transactions[0][value]="${message}" \
             -d objectIdentifier=${task}
-        fi
+        done
